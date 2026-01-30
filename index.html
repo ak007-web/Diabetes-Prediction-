@@ -1,0 +1,159 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title>Diabetes Prediction</title>
+  <style>
+    body {
+      font-family: Arial, sans-serif;
+      margin: 40px;
+      background: #f4f4f9;
+      color: #333;
+    }
+    h1 {
+      text-align: center;
+      color: #0066cc;
+    }
+    form {
+      max-width: 600px;
+      margin: auto;
+      padding: 20px;
+      background: #fff;
+      border-radius: 10px;
+      box-shadow: 0 2px 5px rgba(0,0,0,0.2);
+    }
+    label {
+      display: block;
+      margin: 10px 0 5px;
+      font-weight: bold;
+    }
+    input, select {
+      width: 100%;
+      padding: 8px;
+      margin-bottom: 15px;
+      border: 1px solid #ccc;
+      border-radius: 5px;
+    }
+    button {
+      background: #0066cc;
+      color: #fff;
+      border: none;
+      padding: 10px 15px;
+      border-radius: 5px;
+      cursor: pointer;
+    }
+    button:hover {
+      background: #0055aa;
+    }
+    .result {
+      margin-top: 20px;
+      padding: 15px;
+      text-align: center;
+      font-size: 1.2em;
+      border-radius: 8px;
+    }
+    .positive {
+      background: #ffcccc;
+      color: #cc0000;
+    }
+    .negative {
+      background: #ccffcc;
+      color: #006600;
+    }
+  </style>
+</head>
+<body>
+
+  <h1>Diabetes Prediction</h1>
+
+  <form id="predictForm">
+    <label>Age:</label>
+    <input type="number" name="Age" required>
+
+    <label>Gender:</label>
+    <select name="Gender">
+      <option>Male</option>
+      <option>Female</option>
+    </select>
+
+    <label>Polyuria(makes large amounts of urine):</label>
+    <select name="Polyuria"><option>No</option><option>Yes</option></select>
+
+    <label>Polydipsia(excessive thirst):</label>
+    <select name="Polydipsia"><option>No</option><option>Yes</option></select>
+
+    <label>Sudden weight loss:</label>
+    <select name="sudden weight loss"><option>No</option><option>Yes</option></select>
+
+    <label>Weakness:</label>
+    <select name="weakness"><option>No</option><option>Yes</option></select>
+
+    <label>Polyphagia(a feeling of extreme hunger):</label>
+    <select name="Polyphagia"><option>No</option><option>Yes</option></select>
+
+    <label>Genital thrush(fungal infection):</label>
+    <select name="Genital thrush"><option>No</option><option>Yes</option></select>
+
+    <label>Visual blurring:</label>
+    <select name="visual blurring"><option>No</option><option>Yes</option></select>
+
+    <label>Itching:</label>
+    <select name="Itching"><option>No</option><option>Yes</option></select>
+
+    <label>Irritability(increased anger):</label>
+    <select name="Irritability"><option>No</option><option>Yes</option></select>
+
+    <label>Delayed healing:</label>
+    <select name="delayed healing"><option>No</option><option>Yes</option></select>
+
+    <label>Partial paresis:</label>
+    <select name="partial paresis"><option>No</option><option>Yes</option></select>
+
+    <label>Muscle stiffness:</label>
+    <select name="muscle stiffness"><option>No</option><option>Yes</option></select>
+
+    <label>Alopecia(hair loss):</label>
+    <select name="Alopecia"><option>No</option><option>Yes</option></select>
+
+    <label>Obesity(excessive accumulation of body fat):</label>
+    <select name="Obesity"><option>No</option><option>Yes</option></select>
+
+    <button type="submit">Predict</button>
+  </form>
+
+  <div id="result" class="result"></div>
+
+  <script>
+    document.getElementById("predictForm").addEventListener("submit", async function(e) {
+      e.preventDefault();
+
+      const formData = {};
+      Array.from(this.elements).forEach(el => {
+        if (el.name) formData[el.name] = el.value;
+      });
+
+      try {
+        const response = await fetch("http://localhost:5000/predict", {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify(formData)
+        });
+
+        const data = await response.json();
+        const resultDiv = document.getElementById("result");
+
+        if (data.error) {
+          resultDiv.textContent = "Error: " + data.error;
+          resultDiv.className = "result";
+        } else {
+          resultDiv.textContent = `Prediction: ${data.diabetic} (Probability: ${(data.probability_positive * 100).toFixed(2)}%)`;
+          resultDiv.className = "result " + (data.diabetic === "Positive" ? "positive" : "negative");
+        }
+      } catch (err) {
+        document.getElementById("result").textContent = "Failed to connect to backend.";
+      }
+    });
+  </script>
+
+</body>
+</html>
